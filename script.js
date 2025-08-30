@@ -300,3 +300,372 @@ const debouncedScroll = debounce(function () {
 }, 10);
 
 window.addEventListener('scroll', debouncedScroll);
+
+// Enhanced JavaScript for Dark Mode Portfolio
+
+// Loading Screen
+window.addEventListener('load', function () {
+    setTimeout(() => {
+        const loading = document.getElementById('loading');
+        loading.style.opacity = '0';
+        setTimeout(() => {
+            loading.style.display = 'none';
+        }, 500);
+    }, 1000);
+});
+
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const targetPosition = target.offsetTop - headerHeight;
+
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
+    });
+
+    // Animate elements on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all elements with animate-on-scroll class
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Active navigation highlighting
+    window.addEventListener('scroll', () => {
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const headerHeight = document.querySelector('header').offsetHeight;
+
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - headerHeight - 100;
+            const sectionHeight = section.offsetHeight;
+            if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    // Form submission handler
+    function handleSubmit(event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const subject = formData.get('subject');
+        const message = formData.get('message');
+
+        // Create mailto link
+        const mailtoLink = `mailto:tahahamada2901@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+
+        // Open default email client
+        window.location.href = mailtoLink;
+
+        // Show success message
+        showNotification('Thank you! Your default email client should open now.', 'success');
+
+        // Reset form
+        event.target.reset();
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: ${type === 'success' ? 'var(--primary-color)' : 'var(--accent-color)'};
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 10px;
+                    box-shadow: var(--shadow);
+                    z-index: 10000;
+                    animation: slideInRight 0.3s ease;
+                    max-width: 300px;
+                    font-weight: 500;
+                `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Add slide animations to CSS
+    const style = document.createElement('style');
+    style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+                
+                .nav-links a.active {
+                    color: var(--primary-color);
+                    position: relative;
+                }
+                
+                .nav-links a.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -5px;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background: var(--primary-color);
+                    border-radius: 1px;
+                }
+                
+                /* Enhanced hover effects */
+                .project-card:hover .project-image {
+                    transform: scale(1.05);
+                    transition: transform 0.3s ease;
+                }
+                
+                .skill-card:hover .skill-icon {
+                    transform: scale(1.2) rotate(10deg);
+                    transition: transform 0.3s ease;
+                }
+                
+                /* Parallax effect for hero section */
+                @media (min-width: 768px) {
+                    .hero {
+                        background-attachment: fixed;
+                    }
+                }
+                
+                /* Enhanced mobile responsiveness */
+                @media (max-width: 480px) {
+                    .container {
+                        padding: 0 1rem;
+                    }
+                    
+                    .cv-buttons {
+                        flex-direction: column;
+                    }
+                    
+                    .cv-btn {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    
+                    .projects-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .skills-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 1rem;
+                    }
+                    
+                    .skill-card {
+                        padding: 1.5rem 1rem;
+                    }
+                    
+                    .hero-content h1 {
+                        font-size: 2rem;
+                    }
+                    
+                    .subtitle {
+                        font-size: 1rem;
+                    }
+                }
+            `;
+    document.head.appendChild(style);
+
+    // Add typing effect to hero subtitle
+    function typeWriter(element, text, speed = 50) {
+        let i = 0;
+        element.textContent = '';
+
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+
+    // Initialize typing effect after loading
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const subtitle = document.querySelector('.subtitle');
+            if (subtitle) {
+                const originalText = subtitle.textContent;
+                typeWriter(subtitle, originalText, 80);
+            }
+        }, 1500);
+    });
+
+    // Add scroll to top button
+    function addScrollToTopButton() {
+        const scrollBtn = document.createElement('button');
+        scrollBtn.innerHTML = '↑';
+        scrollBtn.style.cssText = `
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    background: var(--gradient-primary);
+                    color: white;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    box-shadow: var(--shadow);
+                    transition: all 0.3s ease;
+                    opacity: 0;
+                    visibility: hidden;
+                    z-index: 1000;
+                `;
+
+        scrollBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.body.appendChild(scrollBtn);
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollBtn.style.opacity = '1';
+                scrollBtn.style.visibility = 'visible';
+            } else {
+                scrollBtn.style.opacity = '0';
+                scrollBtn.style.visibility = 'hidden';
+            }
+        });
+
+        scrollBtn.addEventListener('mouseenter', () => {
+            scrollBtn.style.transform = 'translateY(-3px) scale(1.1)';
+        });
+
+        scrollBtn.addEventListener('mouseleave', () => {
+            scrollBtn.style.transform = 'translateY(0) scale(1)';
+        });
+    }
+
+    // Initialize scroll to top button
+    addScrollToTopButton();
+
+    // Enhanced project cards interaction
+    document.querySelectorAll('.project-card').forEach(card => {
+        card.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Add particles background effect (optional)
+    function createParticles() {
+        const hero = document.querySelector('.hero');
+        const particlesContainer = document.createElement('div');
+        particlesContainer.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    overflow: hidden;
+                `;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                        position: absolute;
+                        width: 2px;
+                        height: 2px;
+                        background: rgba(0, 212, 255, 0.5);
+                        border-radius: 50%;
+                        animation: float ${5 + Math.random() * 10}s infinite linear;
+                        left: ${Math.random() * 100}%;
+                        top: ${Math.random() * 100}%;
+                    `;
+            particlesContainer.appendChild(particle);
+        }
+
+        // Add float animation
+        if (!document.querySelector('#particles-style')) {
+            const particleStyle = document.createElement('style');
+            particleStyle.id = 'particles-style';
+            particleStyle.textContent = `
+                        @keyframes float {
+                            0% {
+                                transform: translateY(0px) rotate(0deg);
+                                opacity: 1;
+                            }
+                            50% {
+                                transform: translateY(-20px) rotate(180deg);
+                                opacity: 0.5;
+                            }
+                            100% {
+                                transform: translateY(0px) rotate(360deg);
+                                opacity: 1;
+                            }
+                        }
+                    `;
+            document.head.appendChild(particleStyle);
+        }
+
+        hero.appendChild(particlesContainer);
+    }
+
+    // Initialize particles (uncomment if you want the effect)
+    // createParticles();
+
+    console.log('🚀 Portfolio loaded successfully! Dark mode activated.');
+});
